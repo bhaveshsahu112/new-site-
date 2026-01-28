@@ -1,0 +1,790 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOIR & CO. | Premium Men's Accessories</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'charcoal': '#1A1A1A',
+                        'stone': '#2C2C2C',
+                        'taupe': '#8B7355',
+                        'tan': '#D4A373',
+                        'cream': '#F5F5F0',
+                        'beige': '#E6DDD4',
+                        'warm-gray': '#9A9A9A'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'serif': ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background-color: #FAFAFA;
+            color: #1A1A1A;
+            overflow-x: hidden;
+        }
+
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .hero-text-reveal {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+        }
+
+        .product-card {
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .product-image {
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            transition: color 0.3s ease;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background-color: #1A1A1A;
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .btn-primary:hover::before {
+            left: 0;
+        }
+
+        .btn-primary:hover {
+            color: #F5F5F0;
+        }
+
+        .nav-scrolled {
+            background-color: rgba(250, 250, 250, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+        }
+
+        .magnetic-btn {
+            transition: transform 0.2s ease;
+        }
+
+        .line-reveal {
+            width: 0;
+            height: 1px;
+            background-color: #1A1A1A;
+            transition: width 0.8s ease;
+        }
+
+        .line-reveal.active {
+            width: 100%;
+        }
+
+        .cart-badge {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .scroll-indicator {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .category-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(26,26,26,0.6), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .category-card:hover::after {
+            opacity: 1;
+        }
+
+        .category-card:hover .category-text {
+            transform: translateY(-10px);
+        }
+
+        .category-text {
+            transition: transform 0.4s ease;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="grain-overlay"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-6 px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-12">
+                <a href="#" class="text-2xl font-serif font-bold tracking-wider text-charcoal">NOIR & CO.</a>
+                <div class="hidden lg:flex gap-8 text-sm font-medium tracking-wide">
+                    <a href="#collections" class="hover:text-taupe transition-colors">COLLECTIONS</a>
+                    <a href="#new" class="hover:text-taupe transition-colors">NEW ARRIVALS</a>
+                    <a href="#essentials" class="hover:text-taupe transition-colors">ESSENTIALS</a>
+                    <a href="#about" class="hover:text-taupe transition-colors">OUR STORY</a>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <button class="hidden lg:block hover:text-taupe transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </button>
+                <button class="relative hover:text-taupe transition-colors" onclick="toggleCart()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="absolute -top-2 -right-2 bg-charcoal text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center cart-badge" id="cartCount">0</span>
+                </button>
+                <button class="lg:hidden" onclick="toggleMenu()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 bg-cream z-40 transform translate-x-full transition-transform duration-500 lg:hidden">
+        <div class="flex flex-col items-center justify-center h-full gap-8 text-2xl font-serif">
+            <a href="#collections" onclick="toggleMenu()" class="hover:text-taupe">Collections</a>
+            <a href="#new" onclick="toggleMenu()" class="hover:text-taupe">New Arrivals</a>
+            <a href="#essentials" onclick="toggleMenu()" class="hover:text-taupe">Essentials</a>
+            <a href="#about" onclick="toggleMenu()" class="hover:text-taupe">Our Story</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative h-screen w-full overflow-hidden bg-cream">
+        <div class="absolute inset-0">
+            <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80" 
+                 alt="Premium leather accessories" 
+                 class="w-full h-full object-cover opacity-90 hero-image"
+                 style="transform: scale(1.1);">
+            <div class="absolute inset-0 bg-gradient-to-r from-cream/90 via-cream/40 to-transparent"></div>
+        </div>
+        
+        <div class="relative h-full max-w-7xl mx-auto px-6 lg:px-12 flex items-center">
+            <div class="max-w-2xl pt-20">
+                <p class="text-sm tracking-[0.3em] text-taupe mb-6 uppercase opacity-0 hero-anim">Est. 2024</p>
+                <h1 class="text-5xl lg:text-7xl font-serif font-bold text-charcoal leading-tight mb-8 opacity-0 hero-anim">
+                    Elevate Your<br>
+                    <span class="italic font-light text-stone">Everyday</span>
+                </h1>
+                <p class="text-lg text-stone mb-10 max-w-md leading-relaxed opacity-0 hero-anim">
+                    Handcrafted accessories for the modern gentleman. Where timeless design meets contemporary craftsmanship.
+                </p>
+                <div class="flex gap-4 opacity-0 hero-anim">
+                    <a href="#collections" class="btn-primary px-8 py-4 bg-charcoal text-white text-sm tracking-widest border border-charcoal relative z-10">
+                        SHOP NOW
+                    </a>
+                    <a href="#about" class="px-8 py-4 border border-charcoal text-charcoal text-sm tracking-widest hover:bg-charcoal hover:text-white transition-all duration-300">
+                        OUR STORY
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 scroll-indicator opacity-0 hero-anim">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+        </div>
+    </section>
+
+    <!-- Categories Grid -->
+    <section id="collections" class="py-24 px-6 lg:px-12 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-serif font-bold text-charcoal mb-4">Curated Collections</h2>
+                <div class="w-20 h-px bg-taupe mx-auto"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="category-card relative h-[500px] overflow-hidden cursor-pointer group">
+                    <img src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&q=80" 
+                         alt="Leather Belts" 
+                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500"></div>
+                    <div class="absolute bottom-8 left-8 text-white category-text">
+                        <p class="text-xs tracking-widest mb-2 opacity-80">ACCESSORIES</p>
+                        <h3 class="text-2xl font-serif">Belts</h3>
+                    </div>
+                </div>
+
+                <div class="category-card relative h-[500px] overflow-hidden cursor-pointer group lg:col-span-2">
+                    <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1200&q=80" 
+                         alt="Premium Wallets" 
+                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500"></div>
+                    <div class="absolute bottom-8 left-8 text-white category-text">
+                        <p class="text-xs tracking-widest mb-2 opacity-80">ESSENTIALS</p>
+                        <h3 class="text-2xl font-serif">Wallets & Cardholders</h3>
+                    </div>
+                </div>
+
+                <div class="category-card relative h-[500px] overflow-hidden cursor-pointer group">
+                    <img src="https://images.unsplash.com/photo-1575428652377-a2697242636b?w=800&q=80" 
+                         alt="Caps & Headwear" 
+                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500"></div>
+                    <div class="absolute bottom-8 left-8 text-white category-text">
+                        <p class="text-xs tracking-widest mb-2 opacity-80">HEADWEAR</p>
+                        <h3 class="text-2xl font-serif">Caps</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section id="new" class="py-24 px-6 lg:px-12 bg-cream">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col lg:flex-row justify-between items-end mb-16">
+                <div>
+                    <p class="text-sm tracking-widest text-taupe mb-4">NEW ARRIVALS</p>
+                    <h2 class="text-3xl lg:text-5xl font-serif font-bold text-charcoal">This Season's Edit</h2>
+                </div>
+                <a href="#" class="hidden lg:flex items-center gap-2 text-sm tracking-widest border-b border-charcoal pb-1 hover:text-taupe hover:border-taupe transition-colors mt-4 lg:mt-0">
+                    VIEW ALL PRODUCTS
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Product 1 -->
+                <div class="product-card group cursor-pointer" onclick="addToCart('Heritage Leather Belt')">
+                    <div class="relative overflow-hidden bg-gray-100 aspect-[3/4] mb-4">
+                        <img src="https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=600&q=80" 
+                             alt="Heritage Leather Belt" 
+                             class="product-image w-full h-full object-cover">
+                        <button class="absolute bottom-4 left-4 right-4 bg-white py-3 text-xs tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-charcoal hover:text-white">
+                            QUICK ADD
+                        </button>
+                    </div>
+                    <h3 class="font-medium text-charcoal mb-1">Heritage Leather Belt</h3>
+                    <p class="text-sm text-warm-gray mb-2">Full-grain Italian leather</p>
+                    <p class="text-charcoal font-medium">$125.00</p>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card group cursor-pointer" onclick="addToCart('Minimalist Card Holder')">
+                    <div class="relative overflow-hidden bg-gray-100 aspect-[3/4] mb-4">
+                        <img src="https://images.unsplash.com/photo-1606503825008-909a6184cd42?w=600&q=80" 
+                             alt="Minimalist Card Holder" 
+                             class="product-image w-full h-full object-cover">
+                        <div class="absolute top-4 left-4 bg-charcoal text-white text-[10px] tracking-widest px-3 py-1">BESTSELLER</div>
+                        <button class="absolute bottom-4 left-4 right-4 bg-white py-3 text-xs tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-charcoal hover:text-white">
+                            QUICK ADD
+                        </button>
+                    </div>
+                    <h3 class="font-medium text-charcoal mb-1">Minimalist Card Holder</h3>
+                    <p class="text-sm text-warm-gray mb-2">Nappa leather, 6 card slots</p>
+                    <p class="text-charcoal font-medium">$85.00</p>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card group cursor-pointer" onclick="addToCart('Wool Blend Cap')">
+                    <div class="relative overflow-hidden bg-gray-100 aspect-[3/4] mb-4">
+                        <img src="https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80" 
+                             alt="Wool Blend Cap" 
+                             class="product-image w-full h-full object-cover">
+                        <button class="absolute bottom-4 left-4 right-4 bg-white py-3 text-xs tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-charcoal hover:text-white">
+                            QUICK ADD
+                        </button>
+                    </div>
+                    <h3 class="font-medium text-charcoal mb-1">Wool Blend Cap</h3>
+                    <p class="text-sm text-warm-gray mb-2">Charcoal grey, adjustable</p>
+                    <p class="text-charcoal font-medium">$65.00</p>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="product-card group cursor-pointer" onclick="addToCart('Bi-Fold Wallet')">
+                    <div class="relative overflow-hidden bg-gray-100 aspect-[3/4] mb-4">
+                        <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80" 
+                             alt="Bi-Fold Wallet" 
+                             class="product-image w-full h-full object-cover">
+                        <button class="absolute bottom-4 left-4 right-4 bg-white py-3 text-xs tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-charcoal hover:text-white">
+                            QUICK ADD
+                        </button>
+                    </div>
+                    <h3 class="font-medium text-charcoal mb-1">Bi-Fold Wallet</h3>
+                    <p class="text-sm text-warm-gray mb-2">Hand-stitched, RFID protection</p>
+                    <p class="text-charcoal font-medium">$145.00</p>
+                </div>
+            </div>
+
+            <div class="mt-12 text-center lg:hidden">
+                <a href="#" class="inline-flex items-center gap-2 text-sm tracking-widest border-b border-charcoal pb-1">
+                    VIEW ALL PRODUCTS
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Editorial Section -->
+    <section id="about" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="relative">
+                    <div class="absolute -top-4 -left-4 w-full h-full border border-taupe/30"></div>
+                    <img src="https://images.unsplash.com/photo-1485230905346-71acb9518d9c?w=800&q=80" 
+                         alt="Craftsmanship" 
+                         class="relative w-full h-[600px] object-cover grayscale hover:grayscale-0 transition-all duration-700">
+                </div>
+                <div class="lg:pl-12">
+                    <p class="text-sm tracking-widest text-taupe mb-6">THE CRAFT</p>
+                    <h2 class="text-4xl lg:text-5xl font-serif font-bold text-charcoal mb-8 leading-tight">
+                        Designed for the<br>
+                        <span class="italic font-light">Discerning</span>
+                    </h2>
+                    <div class="space-y-6 text-stone leading-relaxed">
+                        <p>
+                            At NOIR & CO., we believe that true luxury lies in the details. Each piece in our collection is meticulously crafted using time-honored techniques and the finest materials sourced from renowned tanneries across Italy and Spain.
+                        </p>
+                        <p>
+                            Our commitment to sustainability means we create accessories that not only look exceptional but stand the test of time. From full-grain leathers that develop rich patinas to precision-engineered hardware, every element is chosen with intention.
+                        </p>
+                    </div>
+                    
+                    <div class="mt-12 grid grid-cols-3 gap-8 border-t border-gray-200 pt-8">
+                        <div>
+                            <p class="text-3xl font-serif text-charcoal mb-1">100%</p>
+                            <p class="text-xs tracking-widest text-warm-gray">LEATHER</p>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-serif text-charcoal mb-1">24h</p>
+                            <p class="text-xs tracking-widest text-warm-gray">SHIPPING</p>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-serif text-charcoal mb-1">5yr</p>
+                            <p class="text-xs tracking-widest text-warm-gray">WARRANTY</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Essentials Grid -->
+    <section id="essentials" class="py-24 px-6 lg:px-12 bg-charcoal text-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-serif font-bold mb-4">Everyday Essentials</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Curated pieces that form the foundation of a refined wardrobe.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="group cursor-pointer">
+                    <div class="bg-stone aspect-square mb-4 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1612023395494-1c2715992352?w=600&q=80" 
+                             alt="Key Organizer" 
+                             class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+                    </div>
+                    <h4 class="font-medium mb-1">Key Organizer</h4>
+                    <p class="text-sm text-gray-400">$45.00</p>
+                </div>
+                <div class="group cursor-pointer">
+                    <div class="bg-stone aspect-square mb-4 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1618517047923-274616c4b956?w=600&q=80" 
+                             alt="Phone Case" 
+                             class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+                    </div>
+                    <h4 class="font-medium mb-1">Leather Phone Case</h4>
+                    <p class="text-sm text-gray-400">$55.00</p>
+                </div>
+                <div class="group cursor-pointer">
+                    <div class="bg-stone aspect-square mb-4 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1628149455676-1e9d816ce07d?w=600&q=80" 
+                             alt="Sunglasses Case" 
+                             class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+                    </div>
+                    <h4 class="font-medium mb-1">Sunglasses Case</h4>
+                    <p class="text-sm text-gray-400">$65.00</p>
+                </div>
+                <div class="group cursor-pointer">
+                    <div class="bg-stone aspect-square mb-4 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&q=80" 
+                             alt="Watch Roll" 
+                             class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+                    </div>
+                    <h4 class="font-medium mb-1">Watch Roll</h4>
+                    <p class="text-sm text-gray-400">$195.00</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-24 px-6 lg:px-12 bg-beige">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl lg:text-4xl font-serif font-bold text-charcoal mb-6">Join the Club</h2>
+            <p class="text-stone mb-10">Subscribe for early access to new collections and exclusive offers.</p>
+            
+            <form class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto" onsubmit="handleSubscribe(event)">
+                <input type="email" 
+                       placeholder="Enter your email" 
+                       class="flex-1 px-6 py-4 bg-white border-none outline-none text-charcoal placeholder-gray-400"
+                       required>
+                <button type="submit" 
+                        class="px-8 py-4 bg-charcoal text-white text-sm tracking-widest hover:bg-stone transition-colors">
+                    SUBSCRIBE
+                </button>
+            </form>
+            <p class="text-xs text-gray-500 mt-6">By subscribing, you agree to our Privacy Policy.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white pt-20 pb-10 px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div>
+                    <h3 class="text-2xl font-serif font-bold mb-6">NOIR & CO.</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                        Premium accessories for the modern gentleman. Crafted with precision, designed for longevity.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 border border-gray-700 flex items-center justify-center hover:border-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 border border-gray-700 flex items-center justify-center hover:border-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 border border-gray-700 flex items-center justify-center hover:border-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-sm tracking-widest mb-6">SHOP</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">New Arrivals</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Best Sellers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Belts</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Wallets</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Caps</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Gift Cards</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-sm tracking-widest mb-6">HELP</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Shipping & Returns</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Size Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Care Instructions</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-sm tracking-widest mb-6">CONTACT</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li>hello@noirandco.com</li>
+                        <li>+1 (555) 123-4567</li>
+                        <li>123 Atelier Street<br>New York, NY 10001</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-xs text-gray-500">&copy; 2024 NOIR & CO. All rights reserved.</p>
+                <div class="flex gap-6 text-xs text-gray-500">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition-colors">Cookie Settings</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Drawer -->
+    <div id="cartDrawer" class="fixed inset-0 z-50 pointer-events-none">
+        <div class="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300" id="cartOverlay" onclick="toggleCart()"></div>
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white transform translate-x-full transition-transform duration-300 shadow-2xl pointer-events-auto flex flex-col" id="cartContent">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="text-lg font-serif font-bold">Your Cart</h3>
+                <button onclick="toggleCart()" class="hover:rotate-90 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="flex-1 overflow-auto p-6" id="cartItems">
+                <p class="text-gray-500 text-center mt-20">Your cart is empty</p>
+            </div>
+            <div class="p-6 border-t bg-cream">
+                <div class="flex justify-between mb-4 text-lg font-medium">
+                    <span>Subtotal</span>
+                    <span id="cartTotal">$0.00</span>
+                </div>
+                <button class="w-full py-4 bg-charcoal text-white text-sm tracking-widest hover:bg-stone transition-colors">
+                    CHECKOUT
+                </button>
+                <p class="text-xs text-center text-gray-500 mt-4">Shipping & taxes calculated at checkout</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-charcoal text-white px-6 py-4 rounded shadow-lg translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        <span id="toastMessage">Added to cart</span>
+    </div>
+
+    <script>
+        // Initialize GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Hero Animation
+        gsap.to('.hero-image', {
+            scale: 1,
+            duration: 1.5,
+            ease: 'power2.out'
+        });
+
+        gsap.to('.hero-anim', {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            stagger: 0.2,
+            delay: 0.5,
+            ease: 'power3.out'
+        });
+
+        // Navbar Scroll Effect
+        const navbar = document.getElementById('navbar');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 100) {
+                navbar.classList.add('nav-scrolled');
+                navbar.classList.remove('py-6');
+                navbar.classList.add('py-4');
+            } else {
+                navbar.classList.remove('nav-scrolled');
+                navbar.classList.remove('py-4');
+                navbar.classList.add('py-6');
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // Mobile Menu Toggle
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const isOpen = !menu.classList.contains('translate-x-full');
+            
+            if (isOpen) {
+                menu.classList.add('translate-x-full');
+                document.body.style.overflow = 'auto';
+            } else {
+                menu.classList.remove('translate-x-full');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Cart Functionality
+        let cart = [];
+        let cartOpen = false;
+
+        function toggleCart() {
+            const drawer = document.getElementById('cartDrawer');
+            const overlay = document.getElementById('cartOverlay');
+            const content = document.getElementById('cartContent');
+            
+            cartOpen = !cartOpen;
+            
+            if (cartOpen) {
+                drawer.classList.remove('pointer-events-none');
+                overlay.style.opacity = '1';
+                content.style.transform = 'translateX(0)';
+                document.body.style.overflow = 'hidden';
+            } else {
+                drawer.classList.add('pointer-events-none');
+                overlay.style.opacity = '0';
+                content.style.transform = 'translateX(100%)';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function addToCart(productName, price = 125) {
+            const existingItem = cart.find(item => item.name === productName);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ name: productName, price: price, quantity: 1 });
+            }
+            
+            updateCart();
+            showToast(`${productName} added to cart`);
+            
+            // Animate cart badge
+            const badge = document.getElementById('cartCount');
+            badge.style.transform = 'scale(1.3)';
+            setTimeout(() => badge.style.transform = 'scale(1)', 200);
+        }
+
+        function updateCart() {
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-gray-500 text-center mt-20">Your cart is empty</p>';
+                cartTotal.textContent = '$0.00';
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="flex justify-between items-center py-4 border-b">
+                        <div>
+                            <h4 class="font-medium text-sm">${item.name}</h4>
+                            <p class="text-xs text-gray-500 mt-1">Qty: ${item.quantity}</p>
+                        </div>
+                        <p class="font-medium">$${(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                `).join('');
+                
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                cartTotal.textContent = `$${total.toFixed(2)}`;
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Scroll Animations
+        gsap.utils.toArray('.product-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                    toggleActions: 'play none none reverse'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                delay: i * 0.1,
+                ease: 'power3.out'
+            });
+        });
+
+        gsap.from('.category-card', {
+            scrollTrigger: {
+                trigger: '#collections',
+                start: 'top 70%',
+            },
+            y: 60,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.15,
+            ease: 'power3.out'
+        });
+
+        // Newsletter Handler
+        function handleSubscribe(e) {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            if (input.value) {
+                showToast('Thank you for subscribing!');
+                input.value = '';
+            }
+        }
+
+        // Smooth Scroll for Anchor Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Parallax Effect for Hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const heroImage = document.querySelector('.hero-image');
+            if (heroImage && scrolled < window.innerHeight) {
+                heroImage.style.transform = `scale(1.1) translateY(${scrolled * 0.5}px)`;
+            }
+        });
+    </script>
+</body>
+</html>
+```
